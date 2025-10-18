@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Mã hoá lời chúc kiểu Morse</title>
+<style>
+  body { 
+    font-family: sans-serif; 
+    text-align: center; 
+    margin-top: 60px;
+    background: #f9f9f9;
+  }
+  textarea { 
+    width: 60%; 
+    height: 100px; 
+    resize: none;
+    padding: 10px; 
+    border-radius: 6px; 
+    border: 1px solid #ccc; 
+    font-family: inherit; 
+  }
+  button {
+    margin: 10px;
+    padding: 10px 20px;
+    border: none;
+    background: #c27ba0;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  button:hover { background: #a85f87; }
+  .output {
+    width: 60%;
+    margin: 20px auto;
+    background: #fff;
+    border-radius: 6px;
+    padding: 15px;
+    border: 1px solid #ccc;
+    text-align: left;
+  }
+</style>
+</head>
+<body>
+  <h2>✨ Mã hoá lời chúc ✨</h2>
+  <textarea id="input" placeholder="Nhập lời chúc ở đây..."></textarea><br>
+  <button onclick="maHoa()">Mã hoá</button>
+  <button onclick="giaiMa()">Giải mã</button>
+  <div class="output">
+    <h3>Kết quả:</h3>
+    <p id="output"></p>
+  </div>
+
+<script>
+const morse = {
+  A: "•–", B: "–•••", C: "–•–•", D: "–••", E: "•",
+  F: "••–•", G: "––•", H: "••••", I: "••", J: "•–––",
+  K: "–•–", L: "•–••", M: "––", N: "–•", O: "–––",
+  P: "•––•", Q: "––•–", R: "•–•", S: "•••", T: "–",
+  U: "••–", V: "•••–", W: "•––", X: "–••–", Y: "–•––", Z: "––••",
+  0: "–––––", 1: "•––––", 2: "••–––", 3: "•••––", 4: "••••–",
+  5: "•••••", 6: "–••••", 7: "––•••", 8: "–––••", 9: "––––•",
+  " ": "/"
+};
+
+const morseToText = Object.fromEntries(Object.entries(morse).map(([k,v]) => [v, k]));
+
+function maHoa() {
+  const text = document.getElementById("input").value.toUpperCase();
+  const encoded = text.split("").map(ch => morse[ch] || ch).join(" ");
+  document.getElementById("output").textContent = encoded;
+}
+
+function giaiMa() {
+  const code = document.getElementById("input").value.trim().split(" ");
+  const decoded = code.map(c => morseToText[c] || (c === "/" ? " " : c)).join("");
+  document.getElementById("output").textContent = decoded;
+}
+</script>
+</body>
+</html>

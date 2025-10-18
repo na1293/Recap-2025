@@ -2,6 +2,7 @@
 <html lang="vi">
 <head>
   <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Làm thiệp 20/10</title>
 
   <!-- Fonts (hỗ trợ tiếng Việt) -->
@@ -11,35 +12,185 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
 
   <style>
-    body { font-family: Roboto, system-ui, Arial; display:flex; gap:30px; padding:30px; }
-    .controls { width:320px; }
-    label{display:block; margin:8px 0 4px; font-weight:600}
-    input, textarea, select { width:100%; padding:8px; box-sizing:border-box; border-radius:6px; border:1px solid #ccc; }
-    textarea{ resize:none; min-height:120px; font-family:inherit }
-    button{ margin-top:10px; padding:10px 14px; background:#c27ba0; color:#fff; border:none; border-radius:6px; cursor:pointer }
-    button.secondary{ background:#6b9bd6; }
+    :root {
+      --primary-color: #c27ba0;
+      --secondary-color: #6b9bd6;
+      --light-bg: #fff7f9;
+    }
+    
+    * {
+      box-sizing: border-box;
+    }
+    
+    body { 
+      font-family: Roboto, system-ui, Arial; 
+      margin: 0;
+      padding: 16px;
+      background-color: #f8f8f8;
+      color: #333;
+    }
+    
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .controls {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    
+    h3 {
+      margin-top: 0;
+      color: var(--primary-color);
+      text-align: center;
+      font-size: 22px;
+    }
+    
+    label {
+      display: block;
+      margin: 16px 0 8px;
+      font-weight: 600;
+      font-size: 15px;
+      color: #444;
+    }
+    
+    input, textarea, select { 
+      width: 100%; 
+      padding: 14px; 
+      border-radius: 8px; 
+      border: 1px solid #ddd; 
+      font-family: inherit;
+      font-size: 16px; /* Ngăn chặn zoom trên iOS */
+      background-color: #fff;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--primary-color);
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(194,123,160,0.2);
+    }
+    
+    textarea { 
+      resize: none; 
+      min-height: 140px; 
+      line-height: 1.5;
+    }
+    
+    .button-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    
+    button { 
+      flex: 1;
+      padding: 16px; 
+      background: var(--primary-color); 
+      color: #fff; 
+      border: none; 
+      border-radius: 8px; 
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: all 0.3s;
+      box-shadow: 0 2px 6px rgba(194,123,160,0.3);
+    }
+    
+    button:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 3px rgba(194,123,160,0.3);
+    }
+    
+    button.secondary { 
+      background: var(--secondary-color);
+      box-shadow: 0 2px 6px rgba(107,155,214,0.3);
+    }
+    
+    button.secondary:active {
+      box-shadow: 0 1px 3px rgba(107,155,214,0.3);
+    }
 
     /* vùng preview (mẫu thiệp) */
-    .preview-wrap { flex:1; display:flex; align-items:center; justify-content:center; }
+    .preview-wrap { 
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    
     #thiep {
-      width:760px; height:540px; padding:36px; box-sizing:border-box;
-      border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,0.12);
+      width: 100%;
+      max-width: 500px;
+      height: 350px;
+      padding: 24px;
+      box-sizing: border-box;
+      border-radius: 12px; 
+      box-shadow: 0 6px 18px rgba(0,0,0,0.12);
       background: linear-gradient(180deg, #fff7f9 0%, #fff 100%);
-      border:6px solid #e89bbc;
-      position:relative;
-      color:#222;
-      overflow:hidden;
+      border: 6px solid #e89bbc;
+      position: relative;
+      color: #222;
+      overflow: hidden;
       background-image: url('https://c.pxhere.com/photos/08/09/heart_valentine_s_day_love_feeling_happiness_falling_in_love_colorful_heart_darling-675880.jpg!d');
       background-size: cover;
       background-position: center;
     }
 
     /* Nội dung thiệp */
-    .title { font-family: "Noto Serif", serif; font-size:36px; color:#c27ba0; text-align:center; margin-bottom:14px }
-    .recipient { font-size:20px; text-align:center; margin-top:6px; font-weight:600 }
-    .lopban { font-size:18px; text-align:center; color:#555; margin-top:4px }
-    .message { margin:28px auto 0; width:80%; text-align:center; white-space:pre-wrap; line-height:1.6; font-size:20px; color:#111 }
-    .sign { position:absolute; right:36px; bottom:28px; font-size:16px; color:#444 }
+    .title { 
+      font-family: "Noto Serif", serif; 
+      font-size: 24px; 
+      color: #c27ba0; 
+      text-align: center; 
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+    
+    .recipient { 
+      font-size: 18px; 
+      text-align: center; 
+      margin-top: 6px; 
+      font-weight: 600;
+      color: #333;
+    }
+    
+    .lopban { 
+      font-size: 16px; 
+      text-align: center; 
+      color: #555; 
+      margin-top: 4px;
+    }
+    
+    .message { 
+      margin: 20px auto 0; 
+      width: 90%; 
+      text-align: center; 
+      white-space: pre-wrap; 
+      line-height: 1.5; 
+      font-size: 16px; 
+      color: #111;
+      max-height: 140px;
+      overflow-y: auto;
+    }
+    
+    .sign { 
+      position: absolute; 
+      right: 24px; 
+      bottom: 20px; 
+      font-size: 14px; 
+      color: #444;
+      font-style: italic;
+    }
 
     /* Mẫu khác nhau */
     .hong { background: linear-gradient(180deg,#fff7f9 0%, #fff 100%); border-color:#e89bbc; }
@@ -48,89 +199,176 @@
 
     /* overlay mờ khi dùng ảnh nền */
     .overlay {
-      position:absolute; inset:0; background:rgba(255,255,255,0.36); pointer-events:none;
+      position: absolute; 
+      inset: 0; 
+      background: rgba(255,255,255,0.36); 
+      pointer-events: none;
     }
 
-    /* responsive preview for smaller screens */
-    @media(max-width:1100px){
-      body{flex-direction:column}
-      .controls{ width:100% }
-      .preview-wrap{ width:100% }
-      #thiep{ width:100%; height:420px }
+    /* Mobile-first responsive design */
+    @media (min-width: 768px) {
+      .container {
+        flex-direction: row;
+        gap: 30px;
+        padding: 30px;
+      }
+      
+      .controls {
+        width: 320px;
+        flex-shrink: 0;
+      }
+      
+      .preview-wrap {
+        flex: 1;
+      }
+      
+      #thiep {
+        width: 100%;
+        max-width: 760px;
+        height: 540px;
+        padding: 36px;
+      }
+      
+      .title { font-size: 36px; margin-bottom: 14px; }
+      .recipient { font-size: 20px; }
+      .lopban { font-size: 18px; }
+      .message { font-size: 20px; margin-top: 28px; max-height: none; }
+      .sign { font-size: 16px; right: 36px; bottom: 28px; }
     }
 
-    @media(max-width:600px){
-      body { padding:16px; gap:16px; }
-      #thiep { height:360px; padding:24px; font-size:16px; }
-      .title { font-size:28px; }
-      .message { font-size:18px; }
-      .recipient, .lopban { font-size:16px; }
-      .sign { font-size:14px; right:24px; bottom:20px; }
+    @media (max-width: 380px) {
+      #thiep {
+        height: 320px;
+        padding: 20px;
+      }
+      
+      .title { font-size: 22px; }
+      .recipient { font-size: 16px; }
+      .lopban { font-size: 14px; }
+      .message { font-size: 15px; margin-top: 16px; }
+      .sign { font-size: 13px; right: 20px; bottom: 16px; }
     }
 
+    /* Cải thiện scrollbar cho message */
+    .message::-webkit-scrollbar {
+      width: 4px;
+    }
+    
+    .message::-webkit-scrollbar-track {
+      background: rgba(0,0,0,0.05);
+      border-radius: 10px;
+    }
+    
+    .message::-webkit-scrollbar-thumb {
+      background: rgba(194,123,160,0.3);
+      border-radius: 10px;
+    }
+    
+    .message::-webkit-scrollbar-thumb:hover {
+      background: rgba(194,123,160,0.5);
+    }
+    
+    /* Thông báo */
+    .note {
+      margin-top: 16px;
+      font-size: 14px;
+      color: #666;
+      text-align: center;
+      line-height: 1.4;
+    }
+    
+    /* Loading indicator */
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 10px;
+      color: var(--primary-color);
+    }
+    
+    .spinner {
+      border: 3px solid rgba(194,123,160,0.3);
+      border-radius: 50%;
+      border-top: 3px solid var(--primary-color);
+      width: 24px;
+      height: 24px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 8px;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
-  <div class="controls">
-    <h3>Thiết lập thiệp</h3>
+  <div class="container">
+    <div class="controls">
+      <h3>Thiết lập thiệp</h3>
 
-    <label for="mau">Chọn mẫu</label>
-    <select id="mau">
-      <option value="hong">💖 Hồng nhẹ</option>
-      <option value="xanh">💙 Xanh pastel</option>
-      <option value="vang">💛 Vàng tươi</option>
-    </select>
+      <label for="mau" class="text">Chọn mẫu</label>
+      <select id="mau" class="input">
+        <option value="hong">💖 Hồng nhẹ</option>
+        <option value="xanh">💙 Xanh pastel</option>
+        <option value="vang">💛 Vàng tươi</option>
+      </select>
 
-    <label for="can">Căn lề chữ</label>
-    <select id="can">
-    <option value="giua">Căn giữa</option>
-    <option value="trai">Căn trái</option>
-    <option value="phai">Căn phải</option>
-    </select>
+      <label for="can" class="text">Căn lề chữ</label>
+      <select id="can" class="input">
+        <option value="giua">Căn giữa</option>
+        <option value="trai">Căn trái</option>
+        <option value="phai">Căn phải</option>
+      </select>
 
-    <label for="chonbg">Chọn thiết kế</label>
-    <select id="chonbg">
-      <option value="">— Chọn ảnh nền —</option>
-      <option value="Ảnh/anh1.jpg">Nền hoa</option>
-      <option value="Ảnh/anh2.jpg">Nền mùa thu</option>
-      <option value="Ảnh/anh3.jpg">Mùa xuân</option>
-      <option value="Ảnh/anh4.jpg">Nền hoa xuân</option>
-      <option value="Ảnh/anh5.jpg">Nền hoa mùa hạ</option>
-      <option value="Ảnh/anh6.jpg">Nền vuông</option>
-      <option value="Ảnh/anh7.jpg">Nền hoa tím</option>
-      <option value="Ảnh/anh8.jpg">Vườn hoa</option>
-    </select>
+      <label for="chonbg" class="text">Chọn thiết kế</label>
+      <select id="chonbg" class="input">
+        <option value="">— Chọn ảnh nền —</option>
+        <option value="Ảnh/anh1.jpg">Nền hoa</option>
+        <option value="Ảnh/anh2.jpg">Nền mùa thu</option>
+        <option value="Ảnh/anh3.jpg">Mùa xuân</option>
+        <option value="Ảnh/anh4.jpg">Nền hoa xuân</option>
+        <option value="Ảnh/anh5.jpg">Nền hoa mùa hạ</option>
+        <option value="Ảnh/anh6.jpg">Nền vuông</option>
+        <option value="Ảnh/anh7.jpg">Nền hoa tím</option>
+        <option value="Ảnh/anh8.jpg">Vườn hoa</option>
+      </select>
 
-    <label for="ten">Tên người nhận</label>
-    <input id="ten" placeholder="Nhập tên người nhận">
+      <label for="ten">Tên người nhận</label>
+      <input id="ten" placeholder="Nhập tên người nhận" class="input">
 
-    <label for="lop">Nhập lớp của bạn</label>
-    <input id="lop" type="text" placeholder="Nhập lớp bạn đang học (VD: 10D6 hoặc D6)">
+      <label for="lop" class="text">Nhập lớp của bạn</label>
+      <input id="lop" type="text" class="input" placeholder="Nhập lớp bạn đang học (VD: 10D6 hoặc D6)">
 
-    <label for="content">Lời chúc</label>
-    <textarea id="content" placeholder="Nhập lời chúc...">Có những ngày dù nắng hay mưa, những ngày ngồi nghe tiếng cô giảng, đó là một trong những ký ức tuổi học trò thật tươi đẹp. Dưới mái trường thân yêu, trên con đò cập bến tri thức, nhân ngày 20/10: Con xin chúc cô luôn mạnh khỏe, luôn rực rỡ để tiếp tục cùng chúng con đi đi tiếp những quãng đường phía trước để cập bến tri thức.</textarea>
+      <label for="content" class="text">Lời chúc</label>
+      <textarea id="content" class="input" placeholder="Nhập lời chúc...">Có những ngày dù nắng hay mưa, những ngày ngồi nghe tiếng cô giảng, đó là một trong những ký ức tuổi học trò thật tươi đẹp. Dưới mái trường thân yêu, trên con đò cập bến tri thức, nhân ngày 20/10: Con xin chúc cô luôn mạnh khỏe, luôn rực rỡ để tiếp tục cùng chúng con đi đi tiếp những quãng đường phía trước để cập bến tri thức.</textarea>
 
-    <label for="bgfile">Upload ảnh nền</label>
-    <input id="bgfile" type="file" accept="image/*">
+      <label for="bgfile" class="text">Upload ảnh nền</label>
+      <input id="bgfile" class="input" type="file" accept="image/*">
 
-    <div style="display:flex; gap:8px">
-      <button onclick="updatePreview()">Xem trước</button>
-      <button class="secondary" onclick="exportPDF()">Tải PDF</button>
+      <div class="button-group">
+        <button onclick="updatePreview()">Xem trước</button>
+        <button class="secondary" onclick="exportPDF()">Tải PDF</button>
+      </div>
+
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <div>Đang tạo thiệp...</div>
+      </div>
+
+      <p class="note">
+        Tải ảnh lên để làm thiệp nhé! Ứng dụng hoạt động tốt nhất trên trình duyệt Chrome và Safari.
+      </p>
     </div>
 
-    <p style="margin-top:12px; font-size:13px; color:#555">
-      Tải ảnh lên để làm thiệp nhé!
-    </p>
-  </div>
-
-  <div class="preview-wrap">
-    <div id="thiep" class="hong">
-      <div class="title">Lời chúc yêu thương 20-10</div>
-      <div id="lopban" class="lopban"></div>
-      <div id="recipient" class="recipient"></div>
-      <div id="message" class="message"></div>
-      <div class="sign">— Từ tấm lòng</div>
-      <div class="overlay"></div>
+    <div class="preview-wrap">
+      <div id="thiep" class="hong">
+        <div class="title">Lời chúc yêu thương 20-10</div>
+        <div id="lopban" class="lopban"></div>
+        <div id="recipient" class="recipient"></div>
+        <div id="message" class="message"></div>
+        <div class="sign">— Từ tấm lòng</div>
+        <div class="overlay"></div>
+      </div>
     </div>
   </div>
 
@@ -148,6 +386,7 @@
   const messageEl    = document.getElementById('message');
   const bgFileInput  = document.getElementById('bgfile');
   const btnExport    = document.querySelector('button.secondary');
+  const loadingEl    = document.getElementById('loading');
 
   // === Event listeners ===
   selectMau.addEventListener('change', updatePreview);
@@ -155,6 +394,11 @@
   bgSelect.addEventListener('change', updatePreview);
   bgFileInput.addEventListener('change', handleUploadBG);
   btnExport.addEventListener('click', exportPDF);
+
+  // Tự động cập nhật preview khi người dùng nhập
+  tenInput.addEventListener('input', updatePreview);
+  lopInput.addEventListener('input', updatePreview);
+  contentInput.addEventListener('input', updatePreview);
 
   // === Update preview based on controls ===
   function updatePreview() {
@@ -190,17 +434,31 @@
   function handleUploadBG(e) {
     const file = e.target.files[0];
     if (!file) return;
-    const url = URL.createObjectURL(file);
-    elThiep.style.backgroundImage    = `url(${url})`;
-    elThiep.style.backgroundSize     = 'cover';
-    elThiep.style.backgroundPosition = 'center';
-    document.querySelector('#thiep .overlay').style.background =
-      'rgba(255,255,255,0.36)';
+    
+    // Hiển thị loading
+    loadingEl.style.display = 'block';
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const url = e.target.result;
+      elThiep.style.backgroundImage    = `url(${url})`;
+      elThiep.style.backgroundSize     = 'cover';
+      elThiep.style.backgroundPosition = 'center';
+      document.querySelector('#thiep .overlay').style.background =
+        'rgba(255,255,255,0.36)';
+      
+      // Ẩn loading
+      loadingEl.style.display = 'none';
+    };
+    reader.readAsDataURL(file);
   }
 
   // === Xuất PDF với html2pdf.js ===
   function exportPDF() {
     updatePreview();
+    
+    // Hiển thị loading
+    loadingEl.style.display = 'block';
     
     // Cấu hình tối ưu cho xuất PDF
     const opt = {
@@ -239,6 +497,11 @@
     html2pdf().set(opt).from(thiepClone).save().then(() => {
       // Dọn dẹp sau khi xuất
       document.body.removeChild(tempDiv);
+      loadingEl.style.display = 'none';
+    }).catch(err => {
+      console.error('Lỗi khi tạo PDF:', err);
+      loadingEl.style.display = 'none';
+      alert('Có lỗi xảy ra khi tạo PDF. Vui lòng thử lại.');
     });
   }
 

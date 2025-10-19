@@ -58,6 +58,16 @@
       .preview-wrap{ width:100% }
       #thiep{ width:100%; height:420px }
     }
+
+    @media(max-width:600px){
+      body { padding:16px; gap:16px; }
+      #thiep { height:360px; padding:24px; font-size:16px; }
+      .title { font-size:28px; }
+      .message { font-size:18px; }
+      .recipient, .lopban { font-size:16px; }
+      .sign { font-size:14px; right:24px; bottom:20px; }
+    }
+
   </style>
 </head>
 <body>
@@ -78,6 +88,18 @@
     <option value="phai">Căn phải</option>
     </select>
 
+    <label for="chonbg">Chọn thiết kế</label>
+    <select id="chonbg">
+      <option value="">— Chọn ảnh nền —</option>
+      <option value="Ảnh/anh1.jpg">Nền hoa</option>
+      <option value="Ảnh/anh2.jpg">Nền mùa thu</option>
+      <option value="Ảnh/anh3.jpg">Mùa xuân</option>
+      <option value="Ảnh/anh4.jpg">Nền hoa xuân</option>
+      <option value="Ảnh/anh5.jpg">Nền hoa mùa hạ</option>
+      <option value="Ảnh/anh6.jpg">Nền vuông</option>
+      <option value="Ảnh/anh7.jpg">Nền hoa tím</option>
+      <option value="Ảnh/anh8.jpg">Vườn hoa</option>
+    </select>
 
     <label for="ten">Tên người nhận</label>
     <input id="ten" placeholder="Nhập tên người nhận">
@@ -113,60 +135,114 @@
   </div>
 
 <script>
-  const elThiep = document.getElementById('thiep');
-  const selectMau = document.getElementById('mau');
-  const tenInput = document.getElementById('ten');
-  const lopInput = document.getElementById('lop');
+  // === Element references ===
+  const elThiep      = document.getElementById('thiep');
+  const selectMau    = document.getElementById('mau');
+  const bgSelect     = document.getElementById('chonbg');
+  const cantext      = document.getElementById('can');
+  const tenInput     = document.getElementById('ten');
+  const lopInput     = document.getElementById('lop');
   const contentInput = document.getElementById('content');
-  const recipientEl = document.getElementById('recipient');
-  const lopban = document.getElementById('lopban');
-  const messageEl = document.getElementById('message');
-  const bgFileInput = document.getElementById('bgfile');
-  const cantext = document.getElementById('can');
-  function updatePreview(){
-    const mau = selectMau.value;
-    elThiep.classList.remove('hong','xanh','vang');
-    elThiep.classList.add(mau);
+  const recipientEl  = document.getElementById('recipient');
+  const lopbanEl     = document.getElementById('lopban');
+  const messageEl    = document.getElementById('message');
+  const bgFileInput  = document.getElementById('bgfile');
+  const btnExport    = document.querySelector('button.secondary');
 
-    const cantextValue = cantext.value;  // <--- lấy value ở đây
-    const alignMap = { giua: "center", trai: "left", phai: "right" };
-    messageEl.style.textAlign = alignMap[cantextValue] || "center";
+  // === Event listeners ===
+  selectMau.addEventListener('change', updatePreview);
+  cantext.addEventListener('change', updatePreview);
+  bgSelect.addEventListener('change', updatePreview);
+  bgFileInput.addEventListener('change', handleUploadBG);
+  btnExport.addEventListener('click', exportPDF);
 
-    const ten = tenInput.value.trim() || 'Cô Thân Mến';
+  // === Update preview based on controls ===
+  function updatePreview() {
+    // 1. Màu mẫu
+    elThiep.classList.remove('hong', 'xanh', 'vang');
+    elThiep.classList.add(selectMau.value);
+
+    // 2. Ảnh nền từ gallery
+    if (bgSelect.value) {
+      elThiep.style.backgroundImage    = `url(${bgSelect.value})`;
+      elThiep.style.backgroundSize     = 'cover';
+      elThiep.style.backgroundPosition = 'center';
+      document.querySelector('#thiep .overlay').style.background =
+        'rgba(255,255,255,0.36)';
+    }
+
+    // 3. Căn lề chữ
+    const alignMap = { giua: 'center', trai: 'left', phai: 'right' };
+    messageEl.style.textAlign =
+      alignMap[cantext.value] || 'center';
+
+    // 4. Nội dung văn bản
+    const ten = tenInput.value.trim()     || 'Cô Thân Mến';
     const msg = contentInput.value.trim() || 'Chúc bạn mọi điều tốt đẹp.';
-    const lop = lopInput.value.trim() || '10D6';
+    const lop = lopInput.value.trim()     || '10D6';
 
     recipientEl.textContent = `Gửi ${ten},`;
-    messageEl.textContent = msg;
-    lopban.textContent = `Gửi từ lớp ${lop} thân yêu.`;
+    messageEl.textContent   = msg;
+    lopbanEl.textContent    = `Gửi từ lớp ${lop} thân yêu.`;
   }
 
-  bgFileInput.addEventListener('change', (e)=>{
+  // === Xử lý upload ảnh tùy chỉnh ===
+  function handleUploadBG(e) {
     const file = e.target.files[0];
-    if(!file) return;
+    if (!file) return;
     const url = URL.createObjectURL(file);
-    elThiep.style.backgroundImage = `url(${url})`;
-    elThiep.style.backgroundSize = 'cover';
+    elThiep.style.backgroundImage    = `url(${url})`;
+    elThiep.style.backgroundSize     = 'cover';
     elThiep.style.backgroundPosition = 'center';
-    document.querySelector('#thiep .overlay').style.background = 'rgba(255,255,255,0.36)';
-  });
+    document.querySelector('#thiep .overlay').style.background =
+      'rgba(255,255,255,0.36)';
+  }
 
-  async function exportPDF() {
+  // === Xuất PDF với html2pdf.js ===
+  function exportPDF() {
     updatePreview();
-    const ten = tenInput.value.trim() || 'Thiep';
-
+    
+    // Cấu hình tối ưu cho xuất PDF
     const opt = {
-      margin: 0, // không cần lề, full thiệp
-      filename: `ThiepChuc_${ten}.pdf`,
+      margin: 0,
+      filename: `ThiepChuc_${tenInput.value.trim() || 'Thiep'}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, logging: false },
-      jsPDF: { unit: 'px', format: [elThiep.offsetWidth, elThiep.offsetHeight], orientation: 'landscape' }
+      html2canvas: { 
+        scale: 2, 
+        useCORS: true,
+        logging: false,
+        backgroundColor: null
+      },
+      jsPDF: { 
+        unit: 'px', 
+        format: [elThiep.offsetWidth, elThiep.offsetHeight], 
+        orientation: 'portrait' 
+      }
     };
 
-    await new Promise(r => setTimeout(r, 120)); // chờ font/load ảnh
-    html2pdf().set(opt).from(elThiep).save();
+    // Tạo bản sao của thiệp để tránh ảnh hưởng đến hiển thị
+    const thiepClone = elThiep.cloneNode(true);
+    thiepClone.style.boxShadow = 'none';
+    thiepClone.style.transform = 'none';
+    thiepClone.style.position = 'relative';
+    thiepClone.style.width = elThiep.offsetWidth + 'px';
+    thiepClone.style.height = elThiep.offsetHeight + 'px';
+    
+    // Tạo một div tạm thời để chứa bản sao
+    const tempDiv = document.createElement('div');
+    tempDiv.style.position = 'fixed';
+    tempDiv.style.left = '-9999px';
+    tempDiv.appendChild(thiepClone);
+    document.body.appendChild(tempDiv);
+    
+    // Xuất PDF từ bản sao
+    html2pdf().set(opt).from(thiepClone).save().then(() => {
+      // Dọn dẹp sau khi xuất
+      document.body.removeChild(tempDiv);
+    });
   }
 
+  // === Khởi tạo preview lần đầu ===
   updatePreview();
 </script>
 </body>
